@@ -1,21 +1,16 @@
-import pytest
-import numpy as np
-import sys
 import os
-try:
-    from src.ising import Ising
-    from src.observable import Observable
-except ModuleNotFoundError:
-    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
-    from ising import Ising
-    from observable import Observable
 
+import numpy as np
+import pytest
 
-UPDATE_NUM_STEPS = 1_000
+from src.ising import Ising
+from src.observable import Observable
+
+UPDATE_NUM_STEPS = 5_000
 LOW_NUM_STEPS = 1_000_000
 MID_NUM_STEPS = 10 * LOW_NUM_STEPS
 HIGH_NUM_STEPS = 10 * MID_NUM_STEPS
-LEVELS = 16
+LEVELS = 10
 
 
 def checkboard_ising(temperature, size):
@@ -32,10 +27,7 @@ def align_ising(temperature, size, sign=1):
 
 @pytest.mark.parametrize(
     "grid_size, steps",
-    [
-        (n, LOW_NUM_STEPS)
-        for n in [4, 12, 32]
-    ],
+    [(n, LOW_NUM_STEPS) for n in [4, 12, 32]],
 )
 def test_ising_at_zero_temperature(grid_size, steps):
     np.random.seed(0)
@@ -43,7 +35,7 @@ def test_ising_at_zero_temperature(grid_size, steps):
     obs = Observable(LEVELS)
     ising = checkboard_ising(temperature=1e-6, size=grid_size)
     ising.simulation(steps)
-    while not obs.is_filled():
+    while not obs.is_filled:
         ising.simulation(UPDATE_NUM_STEPS)
         obs.add_measurement(ising.magnetization)
     np.testing.assert_allclose(obs.mean(), expected_magnetization, rtol=0.02)
@@ -51,11 +43,7 @@ def test_ising_at_zero_temperature(grid_size, steps):
 
 @pytest.mark.parametrize(
     "grid_size, steps, sign",
-    [
-        (n, LOW_NUM_STEPS, sign)
-        for n in [4, 12, 32]
-        for sign in [-1, 1]
-    ],
+    [(n, LOW_NUM_STEPS, sign) for n in [4, 12, 32] for sign in [-1, 1]],
 )
 def test_ising_at_infinite_temperature(grid_size, steps, sign):
     np.random.seed(0)
@@ -63,16 +51,24 @@ def test_ising_at_infinite_temperature(grid_size, steps, sign):
     ising = align_ising(temperature=np.inf, size=grid_size, sign=sign)
     ising.simulation(steps)
     obs = Observable(LEVELS)
-    while not obs.is_filled():
+    while not obs.is_filled:
         ising.simulation(UPDATE_NUM_STEPS)
         obs.add_measurement(ising.magnetization)
     np.testing.assert_allclose(obs.mean(), expected_magnetization, atol=grid_size)
 
 
 class TestIsing:
-    energy_array = np.load(os.path.join(os.path.dirname(__file__), "data", "energy.npy"), allow_pickle=True)
-    magn_array = np.load(os.path.join(os.path.dirname(__file__), "data", "magnetization.npy"), allow_pickle=True)
-    tau_array = np.load(os.path.join(os.path.dirname(__file__), "data", "temps_correlation.npy"), allow_pickle=True)
+    energy_array = np.load(
+        os.path.join(os.path.dirname(__file__), "data", "energy.npy"), allow_pickle=True
+    )
+    magn_array = np.load(
+        os.path.join(os.path.dirname(__file__), "data", "magnetization.npy"),
+        allow_pickle=True,
+    )
+    tau_array = np.load(
+        os.path.join(os.path.dirname(__file__), "data", "temps_correlation.npy"),
+        allow_pickle=True,
+    )
     T = energy_array[:, 0]
     E, dE = energy_array[:, 1], energy_array[:, 2]
     M, dM = magn_array[:, 1], magn_array[:, 2]
@@ -95,7 +91,7 @@ class TestIsing:
 
         energy_obs = Observable(LEVELS)
         magn_obs = Observable(LEVELS)
-        while not (energy_obs.is_filled() and magn_obs.is_filled()):
+        while not (energy_obs.is_filled and magn_obs.is_filled):
             ising.simulation(UPDATE_NUM_STEPS)
             energy_obs.add_measurement(ising.calculate_energy())
             magn_obs.add_measurement(ising.magnetization)
@@ -104,10 +100,14 @@ class TestIsing:
     @pytest.mark.parametrize("idx", list(range(len(T))) * N_TESTS)
     def test_ising_energy_at_specific_temperature(self, idx, ising):
         np.random.seed(0)
-        norm = ising.size ** 2
+        norm = ising.size**2
         energy_obs, magn_obs = self.simulate_t(idx, ising)
-        np.testing.assert_allclose(energy_obs.mean() / norm, self.E[idx], atol=self.ATOL, rtol=self.RTOL)
-        np.testing.assert_allclose(magn_obs.mean() / norm, self.M[idx], atol=self.ATOL, rtol=self.RTOL)
+        np.testing.assert_allclose(
+            energy_obs.mean() / norm, self.E[idx], atol=self.ATOL, rtol=self.RTOL
+        )
+        np.testing.assert_allclose(
+            magn_obs.mean() / norm, self.M[idx], atol=self.ATOL, rtol=self.RTOL
+        )
 
     @pytest.mark.parametrize("_", list(range(N_TESTS)))
     def test_ising_correlation_derivative_time(self, _, ising):
@@ -119,5 +119,9 @@ class TestIsing:
             energy_corr_times[idx] = energy_obs.correlation_time()
             magn_corr_times[idx] = magn_obs.correlation_time()
         atol = np.ceil(0.2 * len(self.T))
-        np.testing.assert_allclose(np.sign(np.diff(energy_corr_times)), np.sign(np.diff(self.tau_E)), atol=atol)
-        np.testing.assert_allclose(np.sign(np.diff(magn_corr_times)), np.sign(np.diff(self.tau_M)), atol=atol)
+        np.testing.assert_allclose(
+            np.sign(np.diff(energy_corr_times)), np.sign(np.diff(self.tau_E)), atol=atol
+        )
+        np.testing.assert_allclose(
+            np.sign(np.diff(magn_corr_times)), np.sign(np.diff(self.tau_M)), atol=atol
+        )
