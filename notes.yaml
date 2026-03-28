@@ -1,0 +1,59 @@
+categories:
+  - name: Total
+    score: null
+    max_points: 100
+
+  - name: Code
+    score: null
+    max_points: 60
+    items:
+      - name: Qualité du code (pylint)
+        score: null
+        max_points: 10
+      - name: Couverture de tests (codecov)
+        score: null
+        max_points: 10
+      - name: Tests publics (pytest)
+        score: null
+        max_points: 15
+      - name: Tests cachés (pytest)
+        score: null
+        max_points: 15
+      - name: Documentation, docstrings et typage
+        score: null
+        max_points: 5
+      - name: README, reproductibilité et historique Git
+        score: null
+        max_points: 5
+
+  - name: Rapport
+    score: null
+    max_points: 40
+    items:
+      - name: Résumé
+        score: null
+        max_points: 3
+      - name: Introduction
+        score: null
+        max_points: 3
+      - name: Théorie
+        score: null
+        max_points: 6
+      - name: Résultats
+        score: null
+        max_points: 6
+      - name: Discussion
+        score: null
+        max_points: 6
+      - name: Conclusion
+        score: null
+        max_points: 3
+      - name: Références
+        score: null
+        max_points: 3
+      - name: Vérification des résults
+        score: null
+        max_points: 5
+      - name: Présentation
+        score: null
+        max_points: 5

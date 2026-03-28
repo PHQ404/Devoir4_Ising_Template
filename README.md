@@ -1,44 +1,23 @@
 # Titre du Devoir
-## Auteur(e.s)
+
+Résumé en une phrase du projet.
+
+## Auteur.e.s
+
+Noms des auteur.e.s.
 
 ## Description
-Inclure une brève description du devoir et des méthodes utilisés dans le code.
+
+Brève description du projet, des objectifs et des méthodes utilisées.
 
 ## Structure du projet
 
+Lister brièvement les dossiers/fichiers principaux et leur contenu, par ex. `src/` pour le code, `data/` pour les données.
 
-## Installation de l'environnement
+## Installation
 
+Instructions pour installer l’environnement et les dépendances.
 
 ## Utilisation
 
-
---------------------------------------------------------------------------------------------------------------------
-
-
-# Rapport
-
-## Théorie
-
-
-## Méthodologie
-
-
-## Tests
-
-
-## Résultats
-
-
-## Discussion
-
-
-
-## Conclusion
-
-
-
-## Références
-
-
-Note: Voir l'énoncé du devoir dans le dossier [latex](latex).
+Comment exécuter le code, commandes exemples et résultats attendus.
