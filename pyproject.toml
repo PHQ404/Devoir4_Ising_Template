@@ -1,0 +1,29 @@
+[project]
+name = "devoir4-ising-template"
+version = "0.1.0"
+description = "Template of homework 4 (Simulation Monte Carlo du modèle de Ising)"
+
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+  "numpy>=1.26",
+  "numba>=0.59",
+  "scipy>=1.13",
+  "matplotlib>=3.10",
+  "tac",
+]
+
+[tool.uv.sources]
+tac = { git = "https://github.com/JeremieGince/TPAutoCorrect" }
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3.5",
+  "pytest-cov>=7.0.0",
+  "pylint>=2.15.0",
+  "pycodestyle>=2.14",
+]
+
+[tool.pytest.ini_options]
+addopts = "--cov=src --cov-report=term-missing --cov-report=html"

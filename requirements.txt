@@ -1,4 +1,9 @@
-numpy~=1.22
-pytest>=7.4.3
+numpy>=1.26
+numba>=0.59
+scipy>=1.13
+matplotlib>=3.10
+pylint>=2.15.0
+pytest>=8.3.5
+pytest-cov>=7.0.0
+pycodestyle>=2.14.0
 git+https://github.com/JeremieGince/TPAutoCorrect
-numba
