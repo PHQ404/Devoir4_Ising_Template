@@ -1,0 +1,134 @@
+\documentclass[12pt, letterpaper]{article}
+
+\usepackage{amsmath, amssymb}
+\usepackage{braket}
+\usepackage[french]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tcolorbox}
+
+\begin{document}
+
+\title{Devoir 4 : Simulation Monte Carlo du modèle de Ising}
+\author{PHQ404}
+\date{Date de remise: -}
+\maketitle
+
+\section{Objectif}\label{sec:objectif}
+
+\noindent L'objectif de ce devoir est d'observer numériquement la transition de phase
+du modèle de Ising en 2 dimensions à l'aide de l'algorithme de Metropolis, un algorithme se classant parmi les méthodes Monte Carlo.
+Ce devoir se base sur le chapitre 16 des notes de cours de David Sénéchal.
+
+
+\section{Modèle de Ising}\label{sec:modele-de-ising}
+
+\noindent Le modèle d'Ising est décrit par l'hamiltonien
+\begin{equation}
+	H[s] = -J \sum_{\braket{i,j}} s_{i} s_{j}
+\end{equation}
+où la somme est effectuée sur les paires de sites $s_{i}$ et $s_{j}$ qui sont des voisins immédiats sur le réseau, couramment appelés premiers voisins, et $J$ est la constante de couplage entre ces sites.
+
+\bigskip
+
+\noindent Ce devoir contient une classe nommée \texttt{Ising} qui représente
+un tel système de spins avec un couplage ferromagnétique ($J >1$) fixé à $J = +1$ entre les premiers voisins et implémente l'évolution du système de spins selon l'algorithme de Metropolis.
+Vous devez compléter l'implémentation de cette classe.
+Pour ce faire, vous pouvez ajouter des méthodes intermédiaires,
+mais vous ne pouvez pas retirer de méthodes.
+
+\bigskip
+
+\noindent La classe est compilée avec la bibliothèque \textit{NumBa} pour accélérer les calculs.
+Faites attention, cela impose des contraintes sur les versions de \textit{NumPy}.
+
+\section{Analyse logarithmique des erreurs}\label{sec:methode-du-binning}
+
+\noindent L'énergie et l'aimantation sont deux quantités cruciales pour l'étude de la transition de phase du modèle d'Ising. Vous devez donc calculer la valeur de ses quantités en fonction de la température en utilisant l'algorithme Metropolis pour effectuer l'évolution du système. Cependant, l'analyse d'erreur de ces quantités ne coniste pas seulement à utiliser le théorème limite central en raison de la corrélation entre chaque échantillon mesuré au cours de l'évolution du système. Une méthode plus complexe est alors nécessaire: l'analyse logarithmique des erreurs, ou \textit{binning}.
+Cette méthode est expliquée en détail au chapitre 16B.2 des notes de cours.
+
+\bigskip
+
+\noindent Une seconde classe nommée \texttt{Observable} est fournie pour
+évaluer des statistiques sur l'aimantation et l'énergie à l'aide d'une analyse logarithmique des erreurs.
+Vous devez également compléter cette classe.
+
+\section{Simulation Monte Carlo}\label{sec:simulation-monte-carlo}
+
+\noindent À l'aide de ces deux classes, vous devez implémenter une simulation Monte Carlo, ou plus précisément l'algorithme de Metropolis,
+pour un modèle d'Ising sur une grille carrée de $N=32 \times 32$ spins avec des conditions aux frontières périodiques à des températures entre $T=0.5$ et $T=4.0$.
+Choisissez un incrément de température de taille suffisante pour obtenir des résultats convaincants.
+Il peut être pertinent de ne pas utiliser un incrément constant, mais de plutôt concentrer les valeurs de température étudiées autour de la transition de phase attendue.
+
+Pour implémenter la simulation de Monte Carlo , vous devez
+\begin{enumerate}
+	\item initialiser le système aléatoirement;
+	\item effectuer $n_{\text{warmup}} \approx 1{,}000{,}000$ itérations pour réchauffer le système (temps d'équilibration ou de thermalisation);
+	\item rendre une mesure de l'énergie et de l'aimantation après chaque interval de $n_{\text{update}} \approx 5000$ itérations (temps d'autocorrélation);
+	\item terminer la simulation après avoir accumulé $2^{M} \approx 2^{12}$ mesures;
+	\item enregistrer les résultats dans un fichier de données.
+\end{enumerate}
+
+\begin{tcolorbox}[]
+	Les valeurs d'itérations et de mesures sont données en exemple. Expérimentez et choisissez des valeurs appropriées pour obtenir de bons résultats.
+\end{tcolorbox}
+
+\section{Visualisation des résultats}\label{sec:visualisation-des-resultats}
+
+\noindent Vous devez fournir des graphiques similaires aux deux sous-figures de la figure 16.5 des notes de cours, c'est-à-dire l'énergie, l'aimantation (en valeur absolue) ainsi que le temps d'autocorrélation en fonction de la température.
+Vous devez ajouter des barres d'erreur sur la première sous-figure de l'énergie et de l'aimantation calculées à partir de l'analyse logarithmique des erreurs.
+Assurez-vous de produire des figures de bonne qualité (est-ce que la figure des notes de cours est acceptable?).
+
+\section{Discussion}\label{sec:verification}
+
+Voici quelques pistes de discussion qui pourraient être intéressantes:
+
+\begin{itemize}
+	\item Est-ce que les valeurs d'énergie et de magnétisation sont cohérentes avec le comportement attendu? Que représentent-elles physiquement? Intuitivement (et mathématiquement), comment est-ce que le système change lors d'un tel changement de température?
+	\item Que remarquez-vous à propos des erreurs calculées par analyse logarithmique des erreurs? Comment est-ce que les erreurs dépendent des différents paramètres?
+	\item Que représente le temps et la longueur de corrélation? Que pouvez-vous déduire des propriétés du modèle à partir des résultats?
+	\item Quel est le type de transition de phase observée? Comment avez-vous déterminé cela à partir des résultats? Quelles sont les conséquences de ce résultat sur le système étudié?
+	\item Comment est-ce que les résultats se comparent (quantitativement) à la solution analytique?
+	\item Quelles sont les limites de l'algorithme de Metropolis? Qu'est-ce qui impacte le temps d'équilibration et le temps d'autocorrélation?
+\end{itemize}
+
+\bigskip
+
+\noindent Vous devez choisir et répondre à trois des six points précédents.
+Vos explications doivent être claires et détaillées et doivent être écrites dans vos propres mots (pas simplement réécrites des notes de cours).
+Pour un de ces points, vous devez chercher votre réponse hors de notes de cours.
+Il faut donc trouver une référence et aller plus loin que ce qui est écrit dans les notes de cours (notez que trouver la solution analytique ne compte pas pour ceci).
+
+\section{Barème d'évaluation}\label{sec:bareme-evaluation}
+
+\begin{tabular}{l l c}
+	\toprule
+	\textbf{Catégorie} & \textbf{Critère d’évaluation}              & \textbf{Pondération} \\
+	\midrule
+	\multirow{6}{*}{Code (60\%)}
+	                   & Qualité du code (pylint)                   & 10\%                 \\
+	                   & Couverture de tests (codecov)              & 10\%                 \\
+	                   & Tests publics (pytest)                     & 15\%                 \\
+	                   & Tests cachés (pytest)                      & 15\%                 \\
+	                   & Documentation, docstrings et typage        & 5\%                  \\
+	                   & README, reproductibilité et historique Git & 5\%                  \\
+	\midrule
+	\multirow{9}{*}{Rapport (40\%)}
+	                   & Résumé                                     & 3\%                  \\
+	                   & Introduction                               & 3\%                  \\
+	                   & Théorie                                    & 6\%                  \\
+	                   & Résultats                                  & 6\%                  \\
+	                   & Discussion                                 & 6\%                  \\
+	                   & Conclusion                                 & 3\%                  \\
+	                   & Références                                 & 3\%                  \\
+	                   & Vérification des résults                   & 5\%                  \\
+	                   & Présentation                               & 5\%                  \\
+	\bottomrule
+\end{tabular}
+
+\end{document}
