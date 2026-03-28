@@ -37,7 +37,7 @@ class Observable:
                       Other levels are only used for recursion.
         :type level: int
         """
-        # TODO: is the observable filled?
+        # TODO: Is the observable filled?
 
         self.num_values[level] += 1
         self.sums[level] += value
@@ -50,6 +50,7 @@ class Observable:
         else:
             self.previous_values[level] = value
 
+    @property
     def is_filled(self):
         """Returns True if binning is completed."""
         raise NotImplementedError("This function is not implemented yet.")
@@ -98,5 +99,7 @@ class Observable:
 
         :return: The mean of the measurements.
         :rtype: float
+
+        :raises ValueError: If the observable is not filled yet.
         """
         raise NotImplementedError("This function is not implemented yet.")

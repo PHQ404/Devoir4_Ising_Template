@@ -1,5 +1,5 @@
-import numpy as np
 import numba as nb
+import numpy as np
 
 
 def random_ising(temperature, size):
@@ -15,20 +15,24 @@ def random_ising(temperature, size):
     # Randomly initialize spins with values -1 or +1
     # on a grid of shape (size x size).
     spins = np.ones((size, size), dtype=np.int64)
-    rn_signs_mask = np.random.randint(0, 2, (size, size), dtype=np.int64).astype(np.bool_)
+    rn_signs_mask = np.random.randint(0, 2, (size, size), dtype=np.int64).astype(
+        np.bool_
+    )
     spins[rn_signs_mask] = -1
     return Ising(temperature, spins)
 
 
 # Numba allows compiling the class for faster execution.
 # Some operations are not permitted, so attention is needed.
-@nb.experimental.jitclass([
-    ("temperature", nb.float64),
-    ("spins", nb.int64[:, :]),
-    ("size", nb.uint64),
-    ("energy", nb.int64),
-    ("itr", nb.uint64),
-])
+@nb.experimental.jitclass(
+    [
+        ("temperature", nb.float64),
+        ("spins", nb.int64[:, :]),
+        ("size", nb.uint64),
+        ("energy", nb.int64),
+        ("itr", nb.uint64),
+    ]
+)  # type: ignore
 class Ising:
     """2-dimensional paramagnetic Ising model.
 
@@ -49,7 +53,7 @@ class Ising:
 
     @property
     def magnetization(self):
-        """Returns the current magnetization of the spin grid."""
+        """Returns the current magnetization (in absolute value) of the spin grid."""
         raise NotImplementedError("This function is not implemented yet.")
 
     def energy_difference(self, x, y):
@@ -83,14 +87,10 @@ class Ising:
 
     def calculate_energy(self):
         """Returns the current energy of the spin grid.
-        TODO: This function can be optimized.
+
         :return: Current energy.
         :rtype: int
         """
-        energy = 0
-        n = self.size
-        for x in range(n):
-            for y in range(n):
-                energy -= self.spins[x, y] * self.spins[(x + 1) % n, y]
-                energy -= self.spins[x, y] * self.spins[x, (y + 1) % n]
-        return energy
+        # TODO: Do not simply compute the energy with nested loops on all elements.
+        # This function should be optimized.
+        raise NotImplementedError("This function is not implemented yet.")
