@@ -1,0 +1,78 @@
+name: Autograding Tests
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run_autograding_tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov pytest-json-report pylint
+          pip install -r requirements.txt
+
+      - name: Run students tests
+        continue-on-error: true
+        run: |
+          pytest tests/ --json-report --json-report-summary || true
+          if [ -f .report.json ]; then
+            total_nb_tests=$(python -c "import json; d=json.load(open('.report.json')); print(d['summary']['total'])")
+            failed=$(python -c "import json; d=json.load(open('.report.json')); print(d['summary'].get('failed',0))")
+            errors=$(python -c "import json; d=json.load(open('.report.json')); print(d['summary'].get('errors',0))")
+            skipped=$(python -c "import json; d=json.load(open('.report.json')); print(d['summary'].get('skipped',0))")
+            tests_success=$((total_nb_tests - failed - errors - skipped))
+            if [ "$total_nb_tests" -gt 0 ]; then
+              PYTEST_SCORE=$(echo "scale=2; 100 * $tests_success / $total_nb_tests" | bc)
+            else
+              PYTEST_SCORE=0
+            fi
+          else
+            PYTEST_SCORE=0
+          fi
+          echo "PYTEST_SCORE=$PYTEST_SCORE" >> $GITHUB_ENV
+
+      - name: Read code coverage over students tests
+        continue-on-error: true
+        run: |
+          pytest --cov=src/ --cov-report=json tests/ || true
+          if [ -f coverage.json ]; then
+            codecoverage_score=$(python -c "import sys, json; print(json.load(open('coverage.json'))['totals']['percent_covered'])")
+            codecoverage_score_rounded=$(printf "%.2f" "$codecoverage_score")
+          else
+            codecoverage_score_rounded=0
+          fi
+          echo "CODECOVERAGE_SCORE=$codecoverage_score_rounded" >> $GITHUB_ENV
+
+      - name: Read the students PEP8 score with pylint
+        continue-on-error: true
+        run: |
+          pylint_score=$(pylint src/ --disable=C0103,C0326 2>/dev/null | grep -E 'Your code has been rated at' | awk '{print $7}' | cut -d '/' -f1)
+          if [ -z "$pylint_score" ]; then
+            pylint_score=0
+          fi
+          pylint_score_perc=$(echo "scale=2; 10 * $pylint_score" | bc)
+          echo "PYLINT_SCORE=$pylint_score_perc" >> $GITHUB_ENV
+
+      - name: Autograding report
+        continue-on-error: true
+        run: |
+          echo "Le score pour vos tests est: $PYTEST_SCORE"
+          echo "Le score pour PEP8 est: $PYLINT_SCORE"
+          echo "Le score pour le code coverage est: $CODECOVERAGE_SCORE"
