@@ -27,3 +27,6 @@ dev = [
 
 [tool.pytest.ini_options]
 addopts = "--cov=src --cov-report=term-missing --cov-report=html"
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "@nb.experimental.jitclass"]
